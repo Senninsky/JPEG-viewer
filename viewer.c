@@ -24,6 +24,7 @@ int main(int argc, char* argv[]) {
 	for (int i = 0; i < amountToPrint; i++) {
 		printf("%02x\n", (unsigned char)buffer[i]);
 	}
+	printf("\n");
 
 	// Checking JPG format
 	if ((buffer[0] != 0xff) || (buffer[1] != 0xd8)) {
@@ -38,6 +39,7 @@ int main(int argc, char* argv[]) {
 			printf("%02x %02x\n", buffer[i], buffer[i+1]);
 		}
 	}
+	printf("\n");
 
 	// Get pointer to char*'s where all DQT's lie
 	DQT65** DQTs = getDQTs(buffer, fileSize);
@@ -125,6 +127,8 @@ void zigzagToSquare(Matrix* array, Matrix* square) {
 
 DQT65** getDQTs(unsigned char* buffer, long fileSize) {
 	int amount = 0;
+
+	printf("Checking lengths of 'ff db' markers (DQTs)\n");
 	for (int i = 0; i < fileSize; i++) {
 		if ((buffer[i] == 0xff) && (buffer[i+1] == 0xdb)) {
 			size_t length = ((size_t)buffer[i+2]<<8) + buffer[i+3];
@@ -155,7 +159,7 @@ DQT65** getDQTs(unsigned char* buffer, long fileSize) {
 			
 			// Put in the values via zigzag pattern (first bissectrice/start: (0,0), (0,1), (1,0), (2,0), (1,1), ...)
 			zigzagToSquare(charArray, dqtValues);
-			printf("Filled in square matrix via zigzag: \n");
+			printf("Filled in square matrix via zigzag\n");
 			printMatrix(dqtValues);
 			dqt65->values = dqtValues;
 			

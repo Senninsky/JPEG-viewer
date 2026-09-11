@@ -1,5 +1,5 @@
 ffd8: SOI - start of image
-ffe0: APP0 - JFIF metadata
+ffe0: APP0 - JFIF metadata: dates etc (doesn't matter)
 ffdb: DQT - Quantization tables used for compression (matters) (can be multiple)
 ffc0: SOF0 - Baseline image dimensions and component information (matters) (normally once)
 ffc4: DHT - Huffman tables used for decoding (matters) (can be multiple)
