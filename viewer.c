@@ -157,6 +157,7 @@ DQT65** getDQTs(unsigned char* buffer, long fileSize) {
 			zigzagToSquare(charArray, dqtValues);
 			printf("Filled in square matrix via zigzag: \n");
 			printMatrix(dqtValues);
+			dqt65->values = dqtValues;
 			
 			// Don't need to free charArray->values because they are contained in the malloced file-bytes
 			free(charArray);
@@ -165,4 +166,6 @@ DQT65** getDQTs(unsigned char* buffer, long fileSize) {
 			index++;
 		}
 	}
+
+	return DQTs;
 }
