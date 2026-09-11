@@ -1,0 +1,15 @@
+ffd8: SOI - start of image
+ffe0: APP0 - JFIF metadata
+ffdb: DQT - Quantization tables used for compression (matters) (can be multiple)
+ffc0: SOF0 - Baseline image dimensions and component information (matters) (normally once)
+ffc4: DHT - Huffman tables used for decoding (matters) (can be multiple)
+ffda: SOS - Scan header, followed by compressed image data (matters) (can be multiple)
+ffd9: EOI - End of image
+
+Per marker:
++0: 2 bytes - marker
++2: 2 bytes - Length, big-endian
++4: length-2 bytes - payload
+
+Important:
+In compressed data, 0xff is declared as 0xff00, so 0xff00 in bytes = FF in data to avoid confusion with marker headers
