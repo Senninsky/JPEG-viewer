@@ -92,16 +92,16 @@ long getFileSize(const char* relativePath) {
 	return size;
 }
 
-void zigzagToSquare(Matrix* array, Matrix* matrix) {
-	if ((array->width != (matrix->width)*(matrix->width)) || (array->height != 1) || (matrix->width != matrix->height) || (array == NULL) || (matrix == NULL)) {
+void zigzagToSquare(Matrix* array, Matrix* square) {
+	if ((array->width != (square->width)*(square->width)) || (array->height != 1) || (square->width != square->height) || (array == NULL) || (square == NULL)) {
 		return;
 	}
 	
 	int index = 0;
-	for (int diagonal = 0; diagonal < (matrix->width)+(matrix->height) - 1; diagonal++) {
+	for (int diagonal = 0; diagonal < (square->width)+(square->height) - 1; diagonal++) {
 		// Find row range
-		int firstRow = (diagonal < (matrix->width)) ? 0 : diagonal - matrix->width + 1;
-		int lastRow = (diagonal < (matrix->width)) ? diagonal : matrix->height - 1;
+		int firstRow = (diagonal < (square->width)) ? 0 : diagonal - square->width + 1;
+		int lastRow = (diagonal < (square->width)) ? diagonal : square->height - 1;
 		
 		// Go through diagonals
 		for (int j = firstRow; j <= lastRow; j++) {
@@ -115,8 +115,9 @@ void zigzagToSquare(Matrix* array, Matrix* matrix) {
 			}
 			
 			int column = diagonal - row;
-			
-			insertMatrixValue(matrix, row * (matrix->width), column, array->values[index]);
+
+			// Now we have (row, column) where we need to put array[i] at the place square[row, column]
+			insertMatrixValue(square, row, column, array->values[index]);
 			index++;
 		}
 	}
@@ -152,9 +153,13 @@ DQT65** getDQTs(unsigned char* buffer, long fileSize) {
 
 			Matrix* dqtValues = initSparseMatrix(8, 8);
 			
-			// TODO: put in the values via zigzag pattern (first bissectrice/start: (0,0), (0,1), (1,0), (2,0), (1,1), ...)
-
-			freeMatrix(charArray);
+			// Put in the values via zigzag pattern (first bissectrice/start: (0,0), (0,1), (1,0), (2,0), (1,1), ...)
+			zigzagToSquare(charArray, dqtValues);
+			printf("Filled in square matrix via zigzag: \n");
+			printMatrix(dqtValues);
+			
+			// Don't need to free charArray->values because they are contained in the malloced file-bytes
+			free(charArray);
 
 			DQTs[index] = dqt65;
 			index++;

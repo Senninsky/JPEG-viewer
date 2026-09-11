@@ -21,16 +21,19 @@ Matrix* initSparseMatrix(int _width, int _height) {
 }
 
 void freeMatrix(Matrix* m) {
+	printf("Free called\n");
 	free(m->values);
+	printf("Values freed\n");
 	free(m);
+	printf("Matrix freed\n");
 }
 
 void insertMatrixValue(Matrix* m, int row, int col, unsigned char value) {
-	if ((0 <= row) && (row < m->height) && (0 <= col) && (col < m->width)) {
-		printf("insertMatrixValue was not in bounds\n");
+	if (!((0 <= row) && (row < m->height) && (0 <= col) && (col < m->width))) {
+		printf("insertMatrixValue was not in bounds: tried at (row: %i, column: %i) for matrix with width: %i and height: %i\n", row, col, m->width, m->height);
 		return;
 	}
-	
+
 	m->values[row*(m->width) + col] = value;
 }
 

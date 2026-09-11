@@ -15,6 +15,6 @@ long getFileSize(const char* relativePath);
 
 DQT65** getDQTs(unsigned char* buffer, long fileSize);
 
-void zigzagToSquare(Matrix* array, Matrix* matrix);
+void zigzagToSquare(Matrix* array, Matrix* square);
 
 #endif
