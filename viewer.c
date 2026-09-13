@@ -41,8 +41,11 @@ int main(int argc, char* argv[]) {
 	}
 	printf("\n");
 
-	// Get pointer to char*'s where all DQT's lie
+	// Get pointer to DQT65* array
 	DQT65** DQTs = getDQTs(buffer, fileSize);
+
+	// Get pointer to SOF0 struct
+	SOF0* sof0 = getSOF0(buffer, fileSize);
 
 	if (DQTs == NULL) {
 		printf("Getting the DQTs failed!");
@@ -142,6 +145,9 @@ DQT65** getDQTs(unsigned char* buffer, long fileSize) {
 
 	// Allocate the amount of size of the typedef'ed stuct
 	printf("Amount of struct* to place in DQTs buffer: %i\n", amount);
+	if (amount == 0) {
+		return NULL;
+	}
 	DQT65** DQTs = malloc(amount * sizeof(DQT65*));
 
 	// Fill in  those structs
@@ -149,6 +155,7 @@ DQT65** getDQTs(unsigned char* buffer, long fileSize) {
 	for (int i = 0; i < fileSize; i++) {
 		if ((buffer[i] == 0xff) && (buffer[i+1] == 0xdb)) {
 			DQT65* dqt65 = malloc(sizeof(DQT65));
+			// Cutting up the information byte
 			dqt65->precision = buffer[i+4] >> 4;
 			dqt65->tableID = buffer[i+4] & 0x0F;
 			
@@ -170,6 +177,7 @@ DQT65** getDQTs(unsigned char* buffer, long fileSize) {
 			index++;
 		}
 	}
+	printf("\n");
 
 	return DQTs;
 }
