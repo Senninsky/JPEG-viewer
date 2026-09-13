@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+#include <stdbool.h>
 #include "viewer.h"
 #include "matrix.h"
 
@@ -45,7 +47,7 @@ int main(int argc, char* argv[]) {
 	DQT65** DQTs = getDQTs(buffer, fileSize);
 
 	// Get pointer to SOF0 struct
-	SOF0* sof0 = getSOF0(buffer, fileSize);
+	SOF* sof = getSOF(buffer, fileSize);
 
 	if (DQTs == NULL) {
 		printf("Getting the DQTs failed!");
@@ -136,10 +138,11 @@ DQT65** getDQTs(unsigned char* buffer, long fileSize) {
 		if ((buffer[i] == 0xff) && (buffer[i+1] == 0xdb)) {
 			size_t length = ((size_t)buffer[i+2]<<8) + buffer[i+3];
 			printf("Length: %d\n", length);
-			if (length != 67) {
+			// 2 Bytes length + x*(65 bytes payload = 1 byte (2 time 4 bits) + 64 bytes values)
+			if (((length-2) % 65) != 0) {
 				return NULL;
 			}
-			amount++;
+			amount += floor((double)(length-2) / (double)65.0f);
 		}
 	}
 
@@ -154,30 +157,51 @@ DQT65** getDQTs(unsigned char* buffer, long fileSize) {
 	int index = 0;
 	for (int i = 0; i < fileSize; i++) {
 		if ((buffer[i] == 0xff) && (buffer[i+1] == 0xdb)) {
-			DQT65* dqt65 = malloc(sizeof(DQT65));
-			// Cutting up the information byte
-			dqt65->precision = buffer[i+4] >> 4;
-			dqt65->tableID = buffer[i+4] & 0x0F;
+			for (int j = 0; j < amount; j++) {
+				DQT65* dqt65 = malloc(sizeof(DQT65));
+				// Cutting up the information byte
+				dqt65->precision = buffer[(i+(j*65))+4] >> 4;
+				dqt65->tableID = buffer[(i+(j*65))+4] & 0x0F;
 			
-			Matrix* charArray = initMatrix(64, 1, &(buffer[i+4+1]));
-			printMatrix(charArray);
+				Matrix* charArray = initMatrix(64, 1, &(buffer[(i+(j*65))+4+1]));
+				printMatrix(charArray);
 
-			Matrix* dqtValues = initSparseMatrix(8, 8);
+				Matrix* dqtValues = initSparseMatrix(8, 8);
 			
-			// Put in the values via zigzag pattern (first bissectrice/start: (0,0), (0,1), (1,0), (2,0), (1,1), ...)
-			zigzagToSquare(charArray, dqtValues);
-			printf("Filled in square matrix via zigzag\n");
-			printMatrix(dqtValues);
-			dqt65->values = dqtValues;
+				// Put in the values via zigzag pattern (first bissectrice/start: (0,0), (0,1), (1,0), (2,0), (1,1), ...)
+				zigzagToSquare(charArray, dqtValues);
+				printf("Filled in square matrix via zigzag\n");
+				printMatrix(dqtValues);
+				dqt65->values = dqtValues;
 			
-			// Don't need to free charArray->values because they are contained in the malloced file-bytes
-			free(charArray);
+				// Don't need to free charArray->values because they are contained in the malloced file-bytes
+				free(charArray);
 
-			DQTs[index] = dqt65;
-			index++;
+				DQTs[index] = dqt65;
+				index++;
+			}
 		}
 	}
 	printf("\n");
 
 	return DQTs;
+}
+
+SOF* getSOF(unsigned char* buffer, long fileSize) {
+	for (int i = 0; i < fileSize; i++) {
+		if ((buffer[i] == 0xff) && ((buffer[i+1] == 0xc0) || (buffer[i+1] == 0xc2))) {
+			printf("SOF found! (You should see this message only once)\n");
+			SOF* sof = malloc(sizeof(SOF));
+			size_t length = ((size_t)buffer[i+2]<<8) + buffer[i+3];
+			sof->precision = buffer[i+4];
+			sof->imageHeight = ((int)buffer[i+5]<<8) + buffer[i+6];
+			printf("Image Height found in SOF = %i\n", sof->imageHeight);
+			sof->imageWidth = ((int)buffer[i+7]<<8) + buffer[i+8];
+			printf("Image width found in SOF = %i\n", sof->imageWidth);
+			
+			return sof;
+		}
+	}
+	
+	return NULL;
 }
