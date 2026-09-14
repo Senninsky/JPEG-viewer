@@ -4,6 +4,7 @@
 #include "matrix.h"
 #include "dqt.h"
 #include "sof.h"
+#include "dht.h"
 
 int main(int argc, char* argv[]) {
 
@@ -58,6 +59,10 @@ int main(int argc, char* argv[]) {
 		printf("Getting the SOF failed!");
 		return -1;
 	}
+	
+	// Get pointer to array of pointers to DHT structs
+	int DHTamount;
+	DHT** DHTs = getDHTs(buffer, fileSize, &DHTamount);
 
 	// Giving up the allocated memory-space again
     	free(buffer);
