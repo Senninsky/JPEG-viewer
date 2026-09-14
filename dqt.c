@@ -17,7 +17,7 @@ DQT65** getDQTs(unsigned char* buffer, long fileSize, int* amount_) {
 			if (((length-2) % 65) != 0) {
 				return NULL;
 			}
-			amount += floor((double)(length-2) / (double)65.0f);
+			amount += (int)floor((double)(length-2) / (double)65.0f);
 		}
 	}
 
@@ -33,13 +33,15 @@ DQT65** getDQTs(unsigned char* buffer, long fileSize, int* amount_) {
 	int index = 0;
 	for (int i = 0; i < fileSize; i++) {
 		if ((buffer[i] == 0xff) && (buffer[i+1] == 0xdb)) {
-			for (int j = 0; j < amount; j++) {
+			size_t length = ((size_t)buffer[i+2]<<8) + buffer[i+3];
+
+			for (int j = 0; j < (int)floor((double)(length-2) / (double)65.0f); j++) {
 				DQT65* dqt65 = malloc(sizeof(DQT65));
 				// Cutting up the information byte
-				dqt65->precision = buffer[(i+(j*65))+4] >> 4;
+				dqt65->precision = buffer[(i + 4 + (j*65))] >> 4;
 				dqt65->tableID = buffer[(i+(j*65))+4] & 0x0F;
-			
-				Matrix* charArray = initMatrix(64, 1, &(buffer[(i+(j*65))+4+1]));
+				
+				Matrix* charArray = initMatrix(64, 1, &(buffer[(i + 4 + (j*65)) + (1+j)]));
 				printMatrix(charArray);
 
 				Matrix* dqtValues = initSparseMatrix(8, 8);

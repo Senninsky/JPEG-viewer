@@ -61,6 +61,7 @@ int main(int argc, char* argv[]) {
 
 	// Giving up the allocated memory-space again
     	free(buffer);
+	printf("Buffer freed\n");
 
 	for (int i = 0; i < DQTamount; i++) {
 		freeMatrix(DQTs[i]->values);
@@ -70,8 +71,9 @@ int main(int argc, char* argv[]) {
 
 	for (int i = 0; i < sof->N; i++) {
 		free(sof->components[i]);
-		printf("Freed sof component");
+		printf("Freed sof component\n");
 	}
+	free(sof->components);
 	free(sof);
 	
     	return 0;
