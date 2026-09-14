@@ -5,7 +5,7 @@
 #include "matrix.h"
 #include "viewer.h"
 
-DQT65** getDQTs(unsigned char* buffer, long fileSize) {
+DQT65** getDQTs(unsigned char* buffer, long fileSize, int* amount_) {
 	int amount = 0;
 
 	printf("Checking lengths of 'ff db' markers (DQTs)\n");
@@ -23,6 +23,7 @@ DQT65** getDQTs(unsigned char* buffer, long fileSize) {
 
 	// Allocate the amount of size of the typedef'ed stuct
 	printf("Amount of struct* to place in DQTs buffer: %i\n", amount);
+	*amount_ = amount;
 	if (amount == 0) {
 		return NULL;
 	}

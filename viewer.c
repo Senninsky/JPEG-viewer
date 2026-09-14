@@ -44,7 +44,13 @@ int main(int argc, char* argv[]) {
 	printf("\n");
 
 	// Get pointer to DQT65* array
-	DQT65** DQTs = getDQTs(buffer, fileSize);
+	int DQTamount;
+	DQT65** DQTs = getDQTs(buffer, fileSize, &DQTamount);
+	printf("Amount of DQTs to free later: %i\n\n", 	DQTamount);
+	if (DQTs == NULL) {
+		printf("Getting the DQTs failed!");
+		return -1;
+	}
 
 	// Get pointer to SOF0 struct
 	SOF* sof = getSOF(buffer, fileSize);
@@ -53,14 +59,21 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	if (DQTs == NULL) {
-		printf("Getting the DQTs failed!");
-		return -1;
-	}
-
-	// Giving up the allocated buffer-space again
+	// Giving up the allocated memory-space again
     	free(buffer);
 
+	for (int i = 0; i < DQTamount; i++) {
+		freeMatrix(DQTs[i]->values);
+		free(DQTs[i]);
+	}
+	free(DQTs);
+
+	for (int i = 0; i < sof->N; i++) {
+		free(sof->components[i]);
+		printf("Freed sof component");
+	}
+	free(sof);
+	
     	return 0;
 }
 

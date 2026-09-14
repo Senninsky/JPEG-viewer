@@ -13,6 +13,19 @@ SOF* getSOF(unsigned char* buffer, long fileSize) {
 			printf("Image Height found in SOF = %i\n", sof->imageHeight);
 			sof->imageWidth = ((int)buffer[i+7]<<8) + buffer[i+8];
 			printf("Image width found in SOF = %i\n", sof->imageWidth);
+			sof->N = (int)buffer[i+9];
+			printf("Amount of SOF-components to be added: %i\n", sof->N);
+			
+			sof->components = malloc(sof->N * sizeof(Component));
+			for (int j = 0; j < sof->N; j++) {
+				Component* comp = malloc(sizeof(Component));
+				comp->ID = buffer[i+10 + 3*j];
+				comp->samplingFactor = buffer[i+10 + 3*j + 1]; // upper 4 bits horizontal - lower 4 bits vertical
+				comp->quantTableID = buffer[i+10 + 3*j + 2];
+				sof->components[i] = comp;
+			}
+			
+			printf("\n");
 			
 			return sof;
 		}

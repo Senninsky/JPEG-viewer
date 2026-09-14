@@ -21,9 +21,7 @@ Matrix* initSparseMatrix(int _width, int _height) {
 }
 
 void freeMatrix(Matrix* m) {
-	printf("Free called\n");
 	free(m->values);
-	printf("Values freed\n");
 	free(m);
 	printf("Matrix freed\n");
 }

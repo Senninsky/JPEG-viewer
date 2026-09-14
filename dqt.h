@@ -9,6 +9,6 @@ typedef struct {
 	Matrix* values; // 64 values from an 8x8 matrix, stored in zigzag order
 } DQT65;
 
-DQT65** getDQTs(unsigned char* buffer, long fileSize);
+DQT65** getDQTs(unsigned char* buffer, long fileSize, int* amount);
 
 #endif
