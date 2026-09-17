@@ -63,10 +63,10 @@ int main(int argc, char* argv[]) {
 	// Get pointer to array of pointers to DHT structs
 	int DHTamount;
 	DHT** DHTs = getDHTs(buffer, fileSize, &DHTamount);
+	printf("%d DHTs were found (to free later)\n\n", DHTamount);
 
 	// Giving up the allocated memory-space again
-    	free(buffer);
-	printf("Buffer freed\n");
+    	
 
 	for (int i = 0; i < DQTamount; i++) {
 		freeMatrix(DQTs[i]->values);
@@ -80,6 +80,15 @@ int main(int argc, char* argv[]) {
 	}
 	free(sof->components);
 	free(sof);
+
+	for (int i = 0; i < DHTamount; i++) {
+		free(DHTs[i]);
+		printf("Freed a DHT\n");
+	}
+	free(DHTs);
+
+	free(buffer);
+	printf("Buffer freed\n");
 	
     	return 0;
 }
