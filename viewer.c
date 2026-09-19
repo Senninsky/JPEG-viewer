@@ -5,6 +5,7 @@
 #include "dqt.h"
 #include "sof.h"
 #include "dht.h"
+#include "sos.h"
 
 int main(int argc, char* argv[]) {
 
@@ -65,9 +66,12 @@ int main(int argc, char* argv[]) {
 	DHT** DHTs = getDHTs(buffer, fileSize, &DHTamount);
 	printf("%d DHTs were found (to free later)\n\n", DHTamount);
 
-	// Giving up the allocated memory-space again
-    	
+	// Get pointer to array of pointers so SOS structs (sometimes just 1)
+	int SOSamount;
+	SOS** SOSs = getSOSs(buffer, fileSize, &SOSamount);
+	printf("%d SOSs where found (to free later)\n\n", SOSamount);
 
+	// Giving up the allocated memory-space again
 	for (int i = 0; i < DQTamount; i++) {
 		freeMatrix(DQTs[i]->values);
 		free(DQTs[i]);
@@ -86,6 +90,12 @@ int main(int argc, char* argv[]) {
 		printf("Freed a DHT\n");
 	}
 	free(DHTs);
+
+	for (int i = 0; i < SOSamount; i++) {
+		free(SOSs[i]);
+		printf("Freed a SOS\n");
+	}
+	free(SOSs);
 
 	free(buffer);
 	printf("Buffer freed\n");
